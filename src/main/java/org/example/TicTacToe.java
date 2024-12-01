@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -22,9 +23,13 @@ public class TicTacToe implements ActionListener {
     Stack<String> clickHistory = new Stack<>();
 
     String lastClicked;
+    String decision;
+    JLabel decisionLabel;
 
     public TicTacToe(){
         lastClicked = "O";
+        decisionLabel = new JLabel();
+        decisionLabel.setVisible(false);
 
         // create the buttons
         for (int i=0; i<9; i++) {
@@ -45,6 +50,7 @@ public class TicTacToe implements ActionListener {
         contentPane.setLayout(new GridLayout(ROWS,COLUMNS));
         organizeButtons();
 
+        contentPane.add(decisionLabel);
         frame.setSize(600,300);
         frame.setVisible(true);
     }
@@ -69,7 +75,6 @@ public class TicTacToe implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
         handleUndo(e);
         handleReset(e);
 
@@ -79,6 +84,7 @@ public class TicTacToe implements ActionListener {
             actionMapper.get(buttonId).setText(lastClicked);
             recordKeeper.put(buttonId, true);
             clickHistory.add(buttonId);
+            lookForDecision();
         }
     }
 
@@ -102,10 +108,10 @@ public class TicTacToe implements ActionListener {
                 JButton button = actionMapper.get(id);
                 button.setText("");
                 recordKeeper.put(id, false);
-
-                lastClicked = "O";
-                clickHistory.clear();
             }
+            decisionLabel.setVisible(false);
+            lastClicked = "O";
+            clickHistory.clear();
         }
     }
 
@@ -116,4 +122,64 @@ public class TicTacToe implements ActionListener {
             lastClicked = "O";
         }
     }
+
+    private void lookForDecision(){
+
+        ArrayList<String> readings = new ArrayList<>();
+        readings.add(actionMapper.get("0").getText() + actionMapper.get("1").getText() + actionMapper.get("2").getText());
+        readings.add(actionMapper.get("3").getText() + actionMapper.get("4").getText() + actionMapper.get("5").getText());
+        readings.add(actionMapper.get("6").getText() + actionMapper.get("7").getText() + actionMapper.get("8").getText());
+
+        readings.add(actionMapper.get("0").getText() + actionMapper.get("3").getText() + actionMapper.get("6").getText());
+        readings.add(actionMapper.get("1").getText() + actionMapper.get("4").getText() + actionMapper.get("7").getText());
+        readings.add(actionMapper.get("2").getText() + actionMapper.get("5").getText() + actionMapper.get("8").getText());
+
+
+        readings.add(actionMapper.get("0").getText() + actionMapper.get("4").getText() + actionMapper.get("8").getText());
+        readings.add(actionMapper.get("2").getText() + actionMapper.get("4").getText() + actionMapper.get("6").getText());
+
+        if (checkForWin(readings) || checkForEnding()) {
+            postGameCleanup();
+            showDecision();
+        }
+
+    }
+
+    private boolean checkForWin(ArrayList<String> readings){
+        for (String reading: readings) {
+            if (reading.equals("XXX")) {
+                decision = "X won";
+                return true;
+            } else if (reading.equals("OOO")) {
+                decision = "O won";
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean checkForEnding(){
+        for (String id: recordKeeper.keySet()) {
+            if (!recordKeeper.get(id)) {
+                return false; // game is not done yet
+            }
+        }
+        decision = "Match is drawn";
+        return true; // game has ended
+    }
+
+    private void postGameCleanup(){
+        for (String id: actionMapper.keySet()) {
+            recordKeeper.put(id, true);
+        }
+
+        decisionLabel.setText(decision);
+        decisionLabel.setVisible(true);
+        clickHistory.clear();
+
+        JOptionPane.showMessageDialog(frame, decision);
+    }
+
 }
+
+
