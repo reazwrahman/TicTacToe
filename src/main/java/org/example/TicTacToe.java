@@ -17,16 +17,17 @@ public class TicTacToe implements ActionListener {
 
     private JFrame frame;
     private Container contentPane;
+    private DecisionHandler decisionHandler;
 
     Map<String, JButton> actionMapper = new HashMap<>();
     Map<String, Boolean> recordKeeper = new HashMap<>();
     Stack<String> clickHistory = new Stack<>();
 
     String lastClicked;
-    String decision;
     JLabel decisionLabel;
 
     public TicTacToe(){
+        decisionHandler = new DecisionHandler();
         lastClicked = "O";
         decisionLabel = new JLabel();
         decisionLabel.setVisible(false);
@@ -84,7 +85,7 @@ public class TicTacToe implements ActionListener {
             actionMapper.get(buttonId).setText(lastClicked);
             recordKeeper.put(buttonId, true);
             clickHistory.add(buttonId);
-            lookForDecision();
+            callDecisionHandler();
         }
     }
 
@@ -123,61 +124,23 @@ public class TicTacToe implements ActionListener {
         }
     }
 
-    private void lookForDecision(){
-
-        ArrayList<String> readings = new ArrayList<>();
-        readings.add(actionMapper.get("0").getText() + actionMapper.get("1").getText() + actionMapper.get("2").getText());
-        readings.add(actionMapper.get("3").getText() + actionMapper.get("4").getText() + actionMapper.get("5").getText());
-        readings.add(actionMapper.get("6").getText() + actionMapper.get("7").getText() + actionMapper.get("8").getText());
-
-        readings.add(actionMapper.get("0").getText() + actionMapper.get("3").getText() + actionMapper.get("6").getText());
-        readings.add(actionMapper.get("1").getText() + actionMapper.get("4").getText() + actionMapper.get("7").getText());
-        readings.add(actionMapper.get("2").getText() + actionMapper.get("5").getText() + actionMapper.get("8").getText());
-
-
-        readings.add(actionMapper.get("0").getText() + actionMapper.get("4").getText() + actionMapper.get("8").getText());
-        readings.add(actionMapper.get("2").getText() + actionMapper.get("4").getText() + actionMapper.get("6").getText());
-
-        if (checkForWin(readings) || checkForEnding()) {
-            postGameCleanup();
-            showDecision();
+    private void callDecisionHandler(){
+        DecisionTuple decisionTuple = decisionHandler.lookForDecision(actionMapper, recordKeeper);
+        if (decisionTuple.decision) {
+            postGameCleanup(decisionTuple.decisionLabel);
         }
-
     }
 
-    private boolean checkForWin(ArrayList<String> readings){
-        for (String reading: readings) {
-            if (reading.equals("XXX")) {
-                decision = "X won";
-                return true;
-            } else if (reading.equals("OOO")) {
-                decision = "O won";
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean checkForEnding(){
-        for (String id: recordKeeper.keySet()) {
-            if (!recordKeeper.get(id)) {
-                return false; // game is not done yet
-            }
-        }
-        decision = "Match is drawn";
-        return true; // game has ended
-    }
-
-    private void postGameCleanup(){
+    private void postGameCleanup(String resultMessage){
         for (String id: actionMapper.keySet()) {
             recordKeeper.put(id, true);
         }
 
-        decisionLabel.setText(decision);
+        decisionLabel.setText(resultMessage);
         decisionLabel.setVisible(true);
         clickHistory.clear();
 
-        JOptionPane.showMessageDialog(frame, decision);
+        JOptionPane.showMessageDialog(frame, resultMessage);
     }
 
 }
