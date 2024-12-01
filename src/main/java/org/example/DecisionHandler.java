@@ -6,9 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DecisionHandler {
-
-
-
+    
     public DecisionTuple lookForDecision(Map<String, JButton> actionMapper,
                                           Map<String, Boolean> recordKeeper){
 
