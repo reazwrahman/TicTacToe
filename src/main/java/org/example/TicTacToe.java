@@ -117,11 +117,7 @@ public class TicTacToe implements ActionListener {
     }
 
     private void switchMarker(){
-        if (lastClicked.equals("O")) {
-            lastClicked = "X";
-        } else {
-            lastClicked = "O";
-        }
+        lastClicked = lastClicked.equals("O")? "X" : "O";
     }
 
     private void callDecisionHandler(){
