@@ -29,7 +29,8 @@ public class TicTacToe implements ActionListener {
 
     public TicTacToe(){
         decisionHandler = new DecisionHandler();
-        lastClicked = "O";
+        int randomNumber = (int) Math.round(Math.random());
+        lastClicked = randomNumber == 0 ? "X" : "O";
         decisionLabel = new JLabel();
         decisionLabel.setVisible(false);
 
@@ -113,7 +114,7 @@ public class TicTacToe implements ActionListener {
                 recordKeeper.put(id, false);
             }
             decisionLabel.setVisible(false);
-            lastClicked = "O";
+            lastClicked = lastClicked.equals("O")? "X" : "O";
             clickHistory.clear();
         }
     }
